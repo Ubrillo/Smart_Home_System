@@ -14,6 +14,7 @@
 #include "gate.h"
 #include "motion_sensor.h"
 #include "sd_card.h"
+#include "wifi_com.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -68,6 +69,7 @@ static void pcSerialComCharWrite( char chr );
 static void pcSerialComGetFileName( char receivedChar );
 static void pcSerialComShowSdCardFile( char * fileName );
 static void commandGetFileName();
+static void commandRestartWifiCom();
  
 //=====[Declarations (prototypes) of public functions]========================
 void pcSerialComIntWrite( int number );
@@ -186,6 +188,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'l': case 'L': commandSdCardListFiles(); break;
         case 'o': case 'O': commandGetFileName(); break;
+        case 'a': case 'A': commandRestartWifiCom(); break;
         default: availableCommands(); break;
     } 
 }
@@ -211,6 +214,7 @@ static void availableCommands()
     pcSerialComStringWrite( "Press 'l' or 'L' to list all the files " );
     pcSerialComStringWrite( "in the root directory of the SD card\r\n" );
     pcSerialComStringWrite( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
+    pcSerialComStringWrite( "Press 'a' or 'A' to restart the Wi-Fi communication\r\n");
     pcSerialComStringWrite( "\r\n" );
 }
 
@@ -427,4 +431,10 @@ static void pcSerialComCharWrite( char chr )
     char str[2] = "";
     sprintf (str, "%c", chr);
     uartUsb.write( str, strlen(str) );
+}
+
+static void commandRestartWifiCom()
+{
+    pcSerialComStringWrite( "Wi-Fi communication restarted \r\n" );
+    wifiComRestart();
 }

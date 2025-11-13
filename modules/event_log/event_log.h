@@ -11,11 +11,13 @@
 #define DATE_AND_TIME_STR_LENGTH     18
 #define CTIME_STR_LENGTH             25
 #define NEW_LINE_STR_LENGTH           3
+#define EVENT_LABEL_MAX_LENGTH       10
 #define EVENT_STR_LENGTH             (EVENT_HEAD_STR_LENGTH + \
                                       EVENT_LOG_NAME_MAX_LENGTH + \
                                       DATE_AND_TIME_STR_LENGTH  + \
                                       CTIME_STR_LENGTH + \
                                       NEW_LINE_STR_LENGTH)
+
 
 //=====[Declaration of public data types]======================================
 
@@ -27,6 +29,7 @@ void eventLogRead( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
 bool eventLogSaveToSdCard();
 void pcSerialComIntWrite( int number );
+void eventLogReport();
 
 //=====[#include guards - end]=================================================
 

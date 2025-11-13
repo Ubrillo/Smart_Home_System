@@ -14,6 +14,9 @@
 #include "light_system.h"
 #include "audio.h"
 #include "sd_card.h"
+#include "ble_com.h"
+#include "non_blocking_delay.h"
+#include "wifi_com.h"
 
 
 //=====[Declaration of private defines]========================================
@@ -21,7 +24,7 @@
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
-
+static nonBlockingDelay_t smartHomeSystemDelay;
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
@@ -34,6 +37,7 @@
 
 void smartHomeSystemInit()
 {
+    tickInit();
     audioInit();
     userInterfaceInit();
     alarmInit();
@@ -44,18 +48,23 @@ void smartHomeSystemInit()
     gateInit();
     lightSystemInit();
     sdCardInit();
+    wifiComInit();
+    nonBlockingDelayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 
 void smartHomeSystemUpdate()
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();  
-    intruderAlarmUpdate();  
-    alarmUpdate();
-    pcSerialComUpdate();
-    eventLogUpdate();
-    lightSystemUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    if( nonBlockingDelayRead(&smartHomeSystemDelay) ){
+        userInterfaceUpdate();
+        fireAlarmUpdate();  
+        intruderAlarmUpdate();  
+        alarmUpdate();
+        pcSerialComUpdate();
+        eventLogUpdate();
+        lightSystemUpdate();
+        bleComUpdate(); 
+    }
+    wifiComUpdate();
 }
 
 //=====[Implementations of private functions]==================================

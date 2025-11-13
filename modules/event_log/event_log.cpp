@@ -9,67 +9,72 @@
 #include "pc_serial_com.h"
 #include "motion_sensor.h"
 #include "sd_card.h"
+#include "ble_com.h"
+#include "system_event.h"
 
 //=====[Declaration of private defines]========================================
+#define EVENT_LOG_NAME_SHORT_MAX_LENGTH 22
+
+//=====[Declaration of public defines]==================
+//=====[Declaration of private defines]==================
 
 //=====[Declaration of private data types]=====================================
-
-typedef struct systemEvent {
+typedef struct storedEvent {
     time_t seconds;
     char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
     bool storedInSd;
 } systemEvent_t;
 
 //=====[Declaration and initialization of public global objects]===============
-
+systemEvent alarmEvent("ALARM");
+systemEvent gasEvent("GAS_DET");
+systemEvent overTempEvent("OVER_TEMP");
+systemEvent ledICEvent("LED_IC");
+systemEvent ledSBEvent("LED_SB");
+systemEvent motionEvent("MOTION");
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenLastState = OFF;
-static bool gasLastState   = OFF;
-static bool tempLastState  = OFF;
-static bool ICLastState    = OFF;
-static bool SBLastState    = OFF;
 static int eventsIndex     = 0;
 static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
-static bool motionLastState = OFF;
+static bool eventAndStateStrSent;
 
 //=====[Declarations (prototypes) of private functions]========================
-
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName );
+static void eventLabelReduce(char *eventLogReportStr, systemEvent *event);
 
 //=====[Implementations of public functions]===================================
 
 void eventLogUpdate()
 {
-    bool currentState = sirenStateRead();
-    eventLogElementStateUpdate( sirenLastState, currentState, "ALARM" );
-    sirenLastState = currentState;
+    eventAndStateStrSent = false;
+    bool currentState;
 
-    currentState = gasDetectorStateRead();
-    eventLogElementStateUpdate( gasLastState, currentState, "GAS_DET" );
-    gasLastState = currentState;
+    if ( !eventAndStateStrSent ){
+        alarmEvent.stateUpdate( sirenStateRead() );
+    }
 
-    currentState = overTemperatureDetectorStateRead();
-    eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
-    tempLastState = currentState;
+    if ( !eventAndStateStrSent ){
+        gasEvent.stateUpdate( gasDetectorStateRead() );
+    }
 
-    currentState = incorrectCodeStateRead();
-    eventLogElementStateUpdate( ICLastState, currentState, "LED_IC" );
-    ICLastState = currentState;
+    if (!eventAndStateStrSent){
+        overTempEvent.stateUpdate( overTemperatureDetectorStateRead() );
+    }
 
-    currentState = systemBlockedStateRead();
-    eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
-    SBLastState = currentState;
+    if (!eventAndStateStrSent){
+        ledICEvent.stateUpdate( incorrectCodeStateRead() );
+    }
 
-    currentState = motionSensorRead();
-    eventLogElementStateUpdate( motionLastState ,currentState, "MOTION" );
-    motionLastState = currentState;
+    if (!eventAndStateStrSent){
+        ledSBEvent.stateUpdate( systemBlockedStateRead() );
+    }
+
+    if (!eventAndStateStrSent){
+        ledSBEvent.stateUpdate( systemBlockedStateRead() );
+    }
 }
 
 int eventLogNumberOfStoredEvents()
@@ -109,6 +114,11 @@ void eventLogWrite( bool currentState, const char* elementName )
 
     pcSerialComStringWrite(eventAndStateStr);
     pcSerialComStringWrite("\r\n");
+
+    bleComStringWrite(eventAndStateStr);
+    bleComStringWrite("\r\n");
+
+    eventAndStateStrSent = true;
 }
 
 bool eventLogSaveToSdCard()
@@ -147,15 +157,49 @@ bool eventLogSaveToSdCard()
     return true;
 }
 
+void eventLogReport()
+{
+    char eventLogReportStr[EVENT_LOG_NAME_SHORT_MAX_LENGTH] = "";
+    eventLabelReduce( eventLogReportStr, &alarmEvent );
+    strcat(eventLogReportStr, ",");
+
+    eventLabelReduce( eventLogReportStr, &gasEvent );
+    strcat( eventLogReportStr, "," );
+
+    eventLabelReduce( eventLogReportStr, &overTempEvent );
+    strcat( eventLogReportStr, "," );
+    eventLabelReduce( eventLogReportStr, &ledICEvent );
+    strcat( eventLogReportStr, "," );
+    eventLabelReduce( eventLogReportStr, &ledSBEvent );
+    strcat( eventLogReportStr, "," );
+    eventLabelReduce( eventLogReportStr, &motionEvent );
+    bleComStringWrite(eventLogReportStr);
+
+    bleComStringWrite("\r\n");
+
+}
 
 //=====[Implementations of private functions]==================================
-
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName )
+static void eventLabelReduce(char * eventLogReportStr, systemEvent *event)
 {
-    if ( lastState != currentState ) {        
-        eventLogWrite( currentState, elementName );       
+    if (strcmp(event->getLabel(), "ALARM") == 0){
+        strcat(eventLogReportStr,"A");
+    }else if (strcmp(event->getLabel(), "GAS_DET") == 0){
+        strcat(eventLogReportStr,"G");
+    }else if (strcmp(event->getLabel(), "OVER_TEMP") == 0){
+        strcat(eventLogReportStr,"T");
+    }else if(strcmp(event->getLabel(), "LED_IC") == 0){
+        strcat(eventLogReportStr,"I");
+    }else if(strcmp(event->getLabel(), "LED_SB") == 0){
+        strcat(eventLogReportStr,"S");
+    }else if(strcmp(event->getLabel(), "MOTION") == 0){
+        strcat(eventLogReportStr,"M");
+    }
+
+    if ( event->lastStateRead() ){
+        strcat( eventLogReportStr, "N" );
+    }else{
+        strcat( eventLogReportStr, "F" );
     }
 }
 
