@@ -35,7 +35,7 @@ typedef enum {
 } wifiComState_t;
 
 //=====[Declaration and initialization of public global objects]===============
-
+//UnbufferedSerial esp(p9, p10, 9600); 
 UnbufferedSerial uartWifi( p9, p10, 115200 );
 
 //=====[Declaration of external public global variables]=======================
