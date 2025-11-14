@@ -25,6 +25,8 @@ typedef enum{
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
+    PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID,
+    PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD,
 } pcSerialComMode_t;
 
 
@@ -42,6 +44,9 @@ static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfCharsInFileName = 0;
 static char fileName[SD_CARD_FILENAME_MAX_LENGTH] = "";
+static int numberOfCharsInApCredentials = 0;
+static char ApSsid[AP_SSID_MAX_LENGTH] = "";
+static char ApPassword[AP_PASSWORD_MAX_LENGTH] = "";
 
 //=====[Declarations (prototypes) of private functions]========================
 static void pcSerialComStringRead( char* str, int strLength );
@@ -70,6 +75,12 @@ static void pcSerialComGetFileName( char receivedChar );
 static void pcSerialComShowSdCardFile( char * fileName );
 static void commandGetFileName();
 static void commandRestartWifiCom();
+
+static void pcSerialComGetWiFiComApSsid( char receivedChar );
+static void pcSerialComGetWiFiComApPassword( char receivedChar );
+static void commandSetWifiComApSsid();
+static void commandSetWifiComApPassword();
+static void commandGetWifiComAssignedIp();
  
 //=====[Declarations (prototypes) of public functions]========================
 void pcSerialComIntWrite( int number );
@@ -102,16 +113,22 @@ void pcSerialComUpdate()
         switch ( pcSerialComMode ) {
             case PC_SERIAL_GET_FILE_NAME:
                 pcSerialComGetFileName( receivedChar );
-            break;
+                break;
             case PC_SERIAL_COMMANDS:
                 pcSerialComCommandUpdate( receivedChar );
-            break;
+                break;
             case PC_SERIAL_GET_CODE:
                 pcSerialComGetCodeUpdate( receivedChar );
-            break;
+                break;
             case PC_SERIAL_SAVE_NEW_CODE:
                 pcSerialComSaveNewCodeUpdate( receivedChar );
-            break;
+                break;
+            case PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID:
+                pcSerialComGetWiFiComApSsid( receivedChar );
+                break;
+            case PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD:
+                pcSerialComGetWiFiComApPassword( receivedChar );
+                break;
             default:
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
@@ -189,6 +206,9 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'l': case 'L': commandSdCardListFiles(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'a': case 'A': commandRestartWifiCom(); break;
+        case 'd': case 'D': commandSetWifiComApSsid(); break;
+        case 'r': case 'R': commandSetWifiComApPassword(); break;
+        case 'p': case 'P': commandGetWifiComAssignedIp(); break;
         default: availableCommands(); break;
     } 
 }
@@ -215,6 +235,10 @@ static void availableCommands()
     pcSerialComStringWrite( "in the root directory of the SD card\r\n" );
     pcSerialComStringWrite( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     pcSerialComStringWrite( "Press 'a' or 'A' to restart the Wi-Fi communication\r\n");
+    pcSerialComStringWrite( "Press ‘d’ or ‘D’ to set Wi-Fi AP SSID\r\n" );
+    pcSerialComStringWrite( "Press ‘r’ or ‘R’ to set Wi-Fi AP Password\r\n" );
+    pcSerialComStringWrite( "Press ‘p’ or ‘P’ to get Wi-Fi assigned IP\r\n" );
+
     pcSerialComStringWrite( "\r\n" );
 }
 
@@ -437,4 +461,59 @@ static void commandRestartWifiCom()
 {
     pcSerialComStringWrite( "Wi-Fi communication restarted \r\n" );
     wifiComRestart();
+}
+
+static void commandSetWifiComApSsid()
+{
+    pcSerialComStringWrite("\r\nPlease provide the SSID of the Wi-Fi ");
+    pcSerialComStringWrite("Access Point and press the Enter key\r\n");
+    pcSerialComStringWrite("> ");
+    pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID;
+    numberOfCharsInApCredentials = 0;
+}
+
+static void commandSetWifiComApPassword()
+{
+    pcSerialComStringWrite("\r\nPlease provide the Password of the Wi-Fi ");
+    pcSerialComStringWrite("Access Point and press the Enter key\r\n");
+    pcSerialComStringWrite("> ");
+    pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD;
+    numberOfCharsInApCredentials = 0;
+}
+
+static void commandGetWifiComAssignedIp()
+{
+    pcSerialComStringWrite( "The assigned IP is: " );
+    pcSerialComStringWrite( wifiComGetIpAddress() );
+    pcSerialComStringWrite( "\r\n" );
+}
+
+static void pcSerialComGetWiFiComApSsid( char receivedChar )
+{
+    if ( (receivedChar == '\r') &&
+        (numberOfCharsInApCredentials < AP_SSID_MAX_LENGTH) ){
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+            ApSsid[numberOfCharsInApCredentials] = '\0';
+            wifiComSetWiFiComApSsid(ApSsid);
+            pcSerialComStringWrite( "\r\nWi-Fi Access Point SSID configured\r\n\r\n" );
+        }else {
+            ApSsid[numberOfCharsInApCredentials] = receivedChar;
+            pcSerialComCharWrite( receivedChar );
+            numberOfCharsInApCredentials++;
+        }
+}
+
+static void pcSerialComGetWiFiComApPassword( char receivedChar )
+{
+    if ( (receivedChar == '\r') &&
+        (numberOfCharsInApCredentials < AP_PASSWORD_MAX_LENGTH) ){
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+        ApPassword[numberOfCharsInApCredentials] = '\0';
+        wifiComSetWiFiComApPassword(ApPassword);
+        pcSerialComStringWrite( "\r\nWi-Fi Access Point password configured\r\n\r\n" );
+    }else {
+        ApPassword[numberOfCharsInApCredentials] = receivedChar;
+        pcSerialComStringWrite( "*" );
+        numberOfCharsInApCredentials++;
+    }
 }
