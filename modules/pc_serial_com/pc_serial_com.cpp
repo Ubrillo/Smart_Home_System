@@ -235,9 +235,9 @@ static void availableCommands()
     pcSerialComStringWrite( "in the root directory of the SD card\r\n" );
     pcSerialComStringWrite( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     pcSerialComStringWrite( "Press 'a' or 'A' to restart the Wi-Fi communication\r\n");
-    pcSerialComStringWrite( "Press ‘d’ or ‘D’ to set Wi-Fi AP SSID\r\n" );
-    pcSerialComStringWrite( "Press ‘r’ or ‘R’ to set Wi-Fi AP Password\r\n" );
-    pcSerialComStringWrite( "Press ‘p’ or ‘P’ to get Wi-Fi assigned IP\r\n" );
+    pcSerialComStringWrite( "Press 'd' or 'D' to set Wi-Fi AP SSID\r\n" );
+    pcSerialComStringWrite( "Press 'r' or 'R' to set Wi-Fi AP Password\r\n" );
+    pcSerialComStringWrite( "Press 'p' or 'P' to get Wi-Fi assigned IP\r\n" );
 
     pcSerialComStringWrite( "\r\n" );
 }
