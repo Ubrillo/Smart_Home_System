@@ -79,9 +79,15 @@ static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;
 
-static const char htmlCode [] =
-   "<!doctype html> <html> <body> Hello! </body> </html>";
+// static const char htmlCode [] =
+//    "<!doctype html> <html> <body> Hello! </body> </html>"
+//    ;
 
+static const char htmlCode[] =
+   "HTTP/1.1 200 OK\r\n"
+   "Content-Type: text/html\r\n"
+   "\r\n"
+   "<!doctype html><html><body>Hello!</body></html>";
 //=====[Declarations (prototypes) of private functions]========================
 
 static bool isExpectedResponse();
@@ -341,11 +347,13 @@ void wifiComUpdate()
       break;
 
       case WIFI_STATE_WAIT_GET_ID:
-         if( wifiComCharRead(&receivedCharWifiCom) ){
-            currentConnectionId = receivedCharWifiCom;
-            wifiComExpectedResponse = responseOk;
-            wifiComState = WIFI_STATE_WAIT_CIPSTATUS_OK;
-         }
+        if (wifiComCharRead(&receivedCharWifiCom)) {
+            if (receivedCharWifiCom >= '0' && receivedCharWifiCom <= '4') {
+                currentConnectionId = receivedCharWifiCom - '0';
+                wifiComExpectedResponse = responseOk;
+                wifiComState = WIFI_STATE_WAIT_CIPSTATUS_OK;
+            }
+        }
       break;
 
       case WIFI_STATE_WAIT_CIPSTATUS_OK:
@@ -360,7 +368,7 @@ void wifiComUpdate()
 
       case WIFI_STATE_SEND_CIPSEND:
          lengthOfHtmlCode = (strlen(htmlCode));
-         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", 
+         sprintf( strToSend, "AT+CIPSEND=%d,%d\r\n", 
                   currentConnectionId, lengthOfHtmlCode );
          wifiComStringWrite( strToSend );
          wifiComState = WIFI_STATE_WAIT_CIPSEND;
@@ -397,7 +405,7 @@ void wifiComUpdate()
 
       case WIFI_STATE_SEND_CIPCLOSE:
          if (nonBlockingDelayRead(&wifiComDelay)) {
-            sprintf( strToSend, "AT+CIPCLOSE=%c\r\n", currentConnectionId );
+            sprintf( strToSend, "AT+CIPCLOSE=%d\r\n", currentConnectionId );
             wifiComStringWrite( strToSend );
             wifiComExpectedResponse  = responseCipclose;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
