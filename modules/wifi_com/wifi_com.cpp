@@ -1,4 +1,4 @@
-//=====[Libraries]=============================================================
+#//=====[Libraries]=============================================================
 
 #include "arm_book_lib.h"
 
@@ -6,11 +6,19 @@
 
 #include "non_blocking_delay.h"
 #include "pc_serial_com.h"
+#include "temperature_sensor.h"
+#include "siren.h"
+#include "fire_alarm.h"
+#include "motion_sensor.h"
+#include "user_interface.h"
 
 //=====[Declaration of private defines]========================================
 
 #define DELAY_10_SECONDS        10000
 #define DELAY_5_SECONDS         5000
+
+#define BEGIN_USER_LINE   "<p>"
+#define END_USER_LINE     "</p>"
 
 #define IP_MAX_LENGTH (15 + 1)
 
@@ -51,7 +59,7 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-UnbufferedSerial uartWifi( p9, p10, 115200 );
+UnbufferedSerial uartWifi( p9, p10, 9600 );
 
 //=====[Declaration of external public global variables]=======================
 
@@ -73,20 +81,32 @@ static int currentConnectionId;
 static char wifiComApSsid[AP_SSID_MAX_LENGTH] = "";
 static char wifiComApPassword[AP_PASSWORD_MAX_LENGTH] = "";
 static char wifiComIpAddress[IP_MAX_LENGTH];
+static char stateString[4] = "";
 
 static const char* wifiComExpectedResponse;
 static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;
 
-static const char htmlCode [] =
-   "<!doctype html> <html> <body> Hello! </body> </html>";
+static const char htmlCodeHeader [] =
+   "<!doctype html>"
+   "<html> <head> <title>Smart Home System</title> </head>"
+   "<meta http-equiv=\"refresh\" content=\"5\" /> </head>"
+   "<body style=\"text-align: center;\">"
+   "<h1 style=\"color: #0000ff;\">Smart Home System</h1>"
+   "<div style=\"font-weight: bold\">";
+
+static const char htmlCodeFooter [] = "</div> </body> </html>";
+
+static char htmlCodeBody[450] = "";
 
 //=====[Declarations (prototypes) of private functions]========================
 
 static bool isExpectedResponse();
 bool wifiComCharRead( char* receivedChar );
 void wifiComStringWrite( const char* str );
+void wifiComWebPageDataUpdate();
+char * stateToString( bool state );
 
 //=====[Implementations of public functions]===================================
 
@@ -351,6 +371,7 @@ void wifiComUpdate()
       case WIFI_STATE_WAIT_CIPSTATUS_OK:
          if (isExpectedResponse()) {
             wifiComState = WIFI_STATE_SEND_CIPSEND;
+            wifiComWebPageDataUpdate();
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
@@ -359,9 +380,8 @@ void wifiComUpdate()
       break;
 
       case WIFI_STATE_SEND_CIPSEND:
-         lengthOfHtmlCode = (strlen(htmlCode));
-         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", 
-                  currentConnectionId, lengthOfHtmlCode );
+         lengthOfHtmlCode = ( strlen(htmlCodeHeader) + strlen(htmlCodeBody) + strlen(htmlCodeFooter) );
+         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", currentConnectionId, lengthOfHtmlCode );
          wifiComStringWrite( strToSend );
          wifiComState = WIFI_STATE_WAIT_CIPSEND;
          wifiComExpectedResponse = responseOk;
@@ -379,7 +399,9 @@ void wifiComUpdate()
       break;
 
       case WIFI_STATE_SEND_HTML:
-        wifiComStringWrite( htmlCode );
+        wifiComStringWrite( htmlCodeHeader );
+        wifiComStringWrite( htmlCodeBody );
+        wifiComStringWrite( htmlCodeFooter );
         wifiComState = WIFI_STATE_WAIT_HTML;
         wifiComExpectedResponse = responseSendOk;
       break;
@@ -458,4 +480,43 @@ static bool isExpectedResponse()
       }
    }
    return moduleResponse;
+}
+
+void wifiComWebPageDataUpdate()
+{
+    sprintf( htmlCodeBody, "%s Temperature: %.2f &ordm;C %s", 
+             BEGIN_USER_LINE, temperatureSensorReadCelsius(), END_USER_LINE );
+
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
+             "%s Over temperature detected: %s %s", BEGIN_USER_LINE, 
+             stateToString( overTemperatureDetectorStateRead() ), END_USER_LINE );
+    
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Gas detected: %s %s", 
+             BEGIN_USER_LINE, stateToString( gasDetectorStateRead() ), 
+             END_USER_LINE );
+
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
+             "%s Motion detected: %s %s", BEGIN_USER_LINE, 
+             stateToString( motionSensorRead() ), END_USER_LINE );
+    
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Alarm: %s %s", 
+             BEGIN_USER_LINE, stateToString( sirenStateRead() ), END_USER_LINE );
+
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
+             "%s Incorrect code LED: %s %s", BEGIN_USER_LINE, 
+             stateToString( incorrectCodeStateRead() ), END_USER_LINE );
+    
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
+             "%s System blocked LED: %s %s", BEGIN_USER_LINE, 
+             stateToString( systemBlockedStateRead() ), END_USER_LINE );
+}
+
+char * stateToString( bool state )
+{    
+    if ( state ) {
+        strcpy( stateString, "ON");
+    } else {
+        strcpy( stateString, "OFF");
+    }
+    return stateString;
 }

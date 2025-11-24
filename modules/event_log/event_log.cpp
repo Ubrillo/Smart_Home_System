@@ -75,6 +75,7 @@ void eventLogUpdate()
     if (!eventAndStateStrSent){
         ledSBEvent.stateUpdate( systemBlockedStateRead() );
     }
+    if ( !eventAndStateStrSent ) motionEvent.stateUpdate( motionSensorRead() );
 }
 
 int eventLogNumberOfStoredEvents()
@@ -173,8 +174,8 @@ void eventLogReport()
     eventLabelReduce( eventLogReportStr, &ledSBEvent );
     strcat( eventLogReportStr, "," );
     eventLabelReduce( eventLogReportStr, &motionEvent );
+    
     bleComStringWrite(eventLogReportStr);
-
     bleComStringWrite("\r\n");
 
 }

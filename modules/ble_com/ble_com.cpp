@@ -3,6 +3,7 @@
 #include "ble_com.h"
 #include "gate.h"
 #include "event_log.h"
+#include "pc_serial_com.h"
 
 //=====[Declaration and initialization of public global objects]========
 UnbufferedSerial uartBle(p9, p10, 9600);
