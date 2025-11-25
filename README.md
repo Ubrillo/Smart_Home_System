@@ -53,7 +53,7 @@ The LCD shows:
 
 ### SD Card Storage
 
-- Stores logs of events such as alarms, sensor triggers, and user actions
+- Stores logs of events such as alarms, sensor triggers, and user actions using SPI protocol
 
 ### Audio Playback
 
