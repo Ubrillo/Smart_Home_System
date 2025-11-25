@@ -1,9 +1,8 @@
-
-<img width="642" height="841" alt="smart_home_system_architecture" src="https://github.com/user-attachments/assets/072744fa-2e1a-43f0-8543-f463d0cbea6f" />
-
 # Smart Home System — Project Overview
 
 This project implements a fully integrated smart home security and automation system. It combines fire detection, intrusion detection, gate control, lighting control, and multi-platform monitoring using a variety of sensors, actuators, communication interfaces, and user interfaces.
+
+<img width="642" height="841" alt="smart_home_system_architecture" src="https://github.com/user-attachments/assets/072744fa-2e1a-43f0-8543-f463d0cbea6f" />
 
 ---
 
