@@ -21,7 +21,7 @@ static int tickCounter[LEDS_QUANTITY];
 static float periodSFloat[LEDS_QUANTITY];
 
 //=====[Declarations (prototypes) of private functions]========================
-static void setPeriod( lightSystem_t light, float period );
+static void setPeriod(lightSystem_t light, float period);
 static void tickerCallbackBrightControl( );
 
 //=====[Implementations of public functions]===================================
