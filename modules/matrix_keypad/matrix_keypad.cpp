@@ -23,8 +23,12 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut keypadRowPins[MATRIX_KEYPAD_NUMBER_OF_ROWS] = {p5, p6, p7, p8};
-DigitalIn keypadColPins[MATRIX_KEYPAD_NUMBER_OF_COLS]  = {p9, p10, p11, p12};
+//DigitalOut keypadRowPins[MATRIX_KEYPAD_NUMBER_OF_ROWS] = {p5, p6, p7, p8};
+//DigitalIn keypadColPins[MATRIX_KEYPAD_NUMBER_OF_COLS]  = {p9, p10, p11, p12};
+
+DigitalOut keypadRowPins[MATRIX_KEYPAD_NUMBER_OF_ROWS] = {p11, p11, p11, p11};
+DigitalIn keypadColPins[MATRIX_KEYPAD_NUMBER_OF_COLS]  = {p11, p11, p11, p11};
+
 
 //=====[Declaration of external public global variables]=======================
 

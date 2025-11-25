@@ -62,11 +62,6 @@ void fireAlarmUpdate()
         overTemperatureDetected = ON;
         gasDetected = ON;
     }
-
-    if  (fireAlarmTestButton ){
-        overTemperatureDetected = ON;
-        gasDetected = ON;
-    }
 }
 
 bool gasDetectorStateRead()

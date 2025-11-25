@@ -69,7 +69,7 @@ void userInterfaceInit()
 
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
-    matrixKeypadInit( SYSTEM_TIME_INCREMENT_MS );
+    matrixKeypadInit( SYSTEM_TIME_INCREMENT_MS );//-- closed when keypad is not in use
 
     userInterfaceDisplayInit();
     lightLevelControlInit(); // no functionality
@@ -78,7 +78,7 @@ void userInterfaceInit()
 
 void userInterfaceUpdate()
 {
-    userInterfaceMatrixKeypadUpdate();
+    userInterfaceMatrixKeypadUpdate(); //-- closed when keypad is not in use
     incorrectCodeIndicatorUpdate();
     systemBlockedIndicatorUpdate();
     userInterfaceDisplayUpdate();

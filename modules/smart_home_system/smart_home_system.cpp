@@ -62,8 +62,9 @@ void smartHomeSystemUpdate()
         pcSerialComUpdate();
         eventLogUpdate();
         lightSystemUpdate();
-        bleComUpdate(); 
+        bleComUpdate();
     }
+     
     wifiComUpdate();
 }
 
