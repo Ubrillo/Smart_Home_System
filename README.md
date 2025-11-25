@@ -110,7 +110,10 @@ Accessible via:
 
 - Smartphones  
 - PCs  
-- Tablets  
+- Tablets
+- <img width="612" height="414" alt="web_server" src="https://github.com/user-attachments/assets/721831b0-27fc-424e-ba54-7b95c4fb9b77" style="border:2px  solid black;" />
+
+
 
 ---
 
@@ -177,6 +180,6 @@ Accessible via:
 - **Decorative RGB Light**
 
 ---
+![smart_home_hardware_connection](https://github.com/user-attachments/assets/7ddfd0e4-2229-4b6d-a731-d121db81b937)
 
-![smart_home_hardware_connection](https://github.com/user-attachments/assets/17abd4a7-0947-4bd0-ac07-3485fd5d2236)
 
