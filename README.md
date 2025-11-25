@@ -10,11 +10,11 @@ This project implements a fully integrated smart home security and automation sy
 
 The smart home system includes safety mechanisms to detect hazardous conditions:
 
-- Over-temperature detector
-- Gas detector (smoke/gas leak detection)
+- Over-temperature detector  
+- Gas detector (smoke/gas leak detection)  
 - Automatic alarm activation when fire/gas is detected:
-  - Siren
-  - Strobe light
+  - Siren  
+  - Strobe light  
 
 ---
 
@@ -24,9 +24,9 @@ A motion sensor monitors unauthorized movements inside the home.
 
 If an intruder is detected:
 
-- The alarm system activates (siren + strobe)
-- The event is recorded on the SD card
-- System status is displayed on the LCD panel
+- The alarm system activates (siren + strobe)  
+- The event is recorded on the SD card  
+- System status is displayed on the LCD panel  
 
 ---
 
@@ -36,28 +36,28 @@ The alarm system can be controlled from the dedicated control panel.
 
 ### User Authentication
 
-- The alarm can be turned off by entering a 4-digit code
+- The alarm can be turned off by entering a 4-digit code  
 - If the code is incorrect:
-  - The *Incorrect Code* LED turns on
+  - The *Incorrect Code* LED turns on  
 - After five incorrect attempts:
-  - The system enters *blocked mode*
-  - The *System Blocked* LED turns on
+  - The system enters *blocked mode*  
+  - The *System Blocked* LED turns on  
 
 ### LCD Display
 
 The LCD shows:
 
-- Current sensor readings
-- Alarm status
-- System warnings and messages
+- Current sensor readings  
+- Alarm status  
+- System warnings and messages  
 
 ### SD Card Storage
 
-- Stores logs of events such as alarms, sensor triggers, and user actions using SPI protocol
+- Stores logs of events such as alarms, sensor triggers, and user actions using the SPI protocol  
 
 ### Audio Playback
 
-- Plays a welcome audio message on startup
+- Plays a welcome audio message on startup  
 
 ---
 
@@ -65,10 +65,10 @@ The LCD shows:
 
 The system includes a secondary control panel for managing the home’s gate:
 
-- Open and close the gate
-- Adjust decorative light intensity
-- Automatic lighting adjustment using a light sensor
-- Change the color of the decorative light from the alarm control panel
+- Open and close the gate  
+- Adjust decorative light intensity  
+- Automatic lighting adjustment using a light sensor  
+- Change the color of the decorative light from the alarm control panel  
 
 ---
 
@@ -76,10 +76,10 @@ The system includes a secondary control panel for managing the home’s gate:
 
 A PC can be connected via USB serial communication to:
 
-- Monitor sensor values
-- Configure system settings
-- Check alarm status
-- View stored events and logs
+- Monitor sensor values  
+- Configure system settings  
+- Check alarm status  
+- View stored events and logs  
 
 ---
 
@@ -87,10 +87,10 @@ A PC can be connected via USB serial communication to:
 
 A smartphone app connected via BLE provides:
 
-- System monitoring
-- Access to sensor data
-- Gate open/close control
-- Alert and notification viewing
+- System monitoring  
+- Access to sensor data  
+- Gate open/close control  
+- Alert and notification viewing  
 
 ---
 
@@ -100,42 +100,83 @@ The smart home system includes a built-in web server accessible over Wi-Fi.
 
 The web page allows users to:
 
-- Monitor the system in real time
-- Access key sensor readings
-- Control the gate
-- Check alarm status
-- Modify configuration settings
+- Monitor the system in real time  
+- Access key sensor readings  
+- Control the gate  
+- Check alarm status  
+- Modify configuration settings  
 
-The interface is accessible from:
+Accessible via:
 
-- Smartphones
-- PCs
-- Tablets
+- Smartphones  
+- PCs  
+- Tablets  
 
 ---
 
 ## System Features Summary
 
 ### Sensors
-
 - Temperature sensor  
 - Gas/smoke sensor  
 - Motion sensor  
 - Light intensity sensor  
 
 ### Actuators
-
 - Siren  
 - Strobe light  
 - Gate motor  
 - Decorative RGB light  
 
 ### Interfaces
-
 - LCD Display  
 - SD Card  
 - Audio Playback Module  
 - USB Serial  
 - Bluetooth Low Energy  
 - Wi-Fi Web Server  
+
+
+---
+
+## Hardware Used  
+*(Moved to Bottom)*
+
+### Main Controller & Boards
+- **LPC1768 Microcontroller**  
+- **LPCXpresso App Board**  
+
+### Sensors
+- **MQ-2 Gas Sensor** (gas/smoke detection)  
+- **Temperature Sensor (App Board)**  
+- **LDR Light Sensor** (light intensity monitoring)  
+- **PIR Motion Sensor Module** (intruder detection)  
+
+### User Input
+- **4x4 Matrix Keypad** (alarm code entry)  
+- **App Board Potentiometer** (brightness control)
+- **I2C I/O Expander**
+
+### Displays & Indicators
+- **Character-Based LCD Display**  
+- **Incorrect Code LED**  
+- **System Blocked LED**  
+
+### Storage & Audio
+- **SD Card Module (SPI)**  
+- **App Board Speaker**  
+
+### Wireless Communication
+- **HM-10 Bluetooth Low Energy Module**  
+- **ESP-01 (ESP8266) Wi-Fi Module**  
+
+### Actuators
+- **Siren**  
+- **Strobe Light**  
+- **Gate Motor**  
+- **Decorative RGB Light**
+
+---
+
+![smart_home_hardware_connection](https://github.com/user-attachments/assets/17abd4a7-0947-4bd0-ac07-3485fd5d2236)
 
